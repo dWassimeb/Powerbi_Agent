@@ -1,0 +1,3 @@
+"""
+Prompt package initialization.
+"""

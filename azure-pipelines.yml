@@ -1,0 +1,62 @@
+
+trigger:
+  branches:
+    include:
+      - main
+
+resources:
+  - repo: self
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  azureSubscription: 'rg-castor-all-resource-manager2025'
+  resourceGroupName: 'rg-castor'
+  appName: "RAG tester"
+  keyVaultName: 'kv-castor2025'
+  secrets: 'GPT-API-KEY'
+  containerRegistry: 'crcastor2025.azurecr.io'
+  dockerRegistryServiceConnection: 'ddf6ef8f-1bc5-4ae8-a2a3-f0f372fb63b8'
+  imageRepository: "rag-tester"
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+  imageName: "rag-tester"
+  tag: 'latest'
+  vmImageName: 'ubuntu-latest'
+
+stages:
+  - stage: Build
+    displayName: Build and push stage
+    jobs:
+      - job: Build
+        displayName: Build
+        pool:
+          vmImage: $(vmImageName)
+        steps:
+          - task: AzureKeyVault@2
+            inputs:
+              azureSubscription: $(azureSubscription)
+              KeyVaultName: $(keyVaultName)
+              SecretsFilter: '$(secrets)'
+              RunAsPreJob: true
+
+          - script: |
+              echo "Cleaning up space..."
+              docker system prune -af
+              sudo apt-get clean
+              sudo rm -rf /var/lib/apt/lists/*
+            displayName: Clean up disk space
+
+          - task: Docker@2
+            inputs:
+              containerRegistry: $(dockerRegistryServiceConnection)
+              command: login
+
+          - script: |
+              docker build --build-arg GPT_API_KEY=$(GPT-API-KEY) -t $(containerRegistry)/$(imageRepository):$(tag) .
+            displayName: Build Docker Image
+
+          - script: |
+              docker push $(containerRegistry)/$(imageRepository):$(tag)
+            displayName: Push Docker Image to ACR
+
