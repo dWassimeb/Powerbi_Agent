@@ -1,14 +1,12 @@
 """
 Example queries for the PowerBI LLM to help it understand how to formulate complex queries.
 """
-from Agent_LangGraph.Prompts.query_examples import DAX_EXAMPLES
-
 # Example DAX queries
 DAX_EXAMPLES = [
+
     {
         "question": "give me the total revenu of the product P231 for the year 2024?",
-        "query": """
-EVALUATE
+        "query": """EVALUATE
 SUMMARIZECOLUMNS(
     MAPPING_PRODUIT[Code Produit],
     FILTER(
@@ -21,52 +19,49 @@ SUMMARIZECOLUMNS(
     ),
     "Total Revenue", 
     SUM(GL[MONTANT])
+)"""
+    },
+
+
+
+
+
+    {
+        "question": "Evolution du CA mensuel sur T1 et T2 2024 du client Anah de la sous BU Back Office",
+        "query": """EVALUATE
+SUMMARIZECOLUMNS(
+    DIM_DATE[Mois],
+    DIM_DATE[MOIS_NOM],
+    "Chiffre d'Affaires", 
+    CALCULATE(
+        [CA],
+        DIM_CLIENT[RAISON_SOCIALE_DO] = "Annah",
+        GL[Sous BU] = "Back office",
+        DIM_DATE[Année] = 2024,
+        DIM_DATE[Mois] >= 1,
+        DIM_DATE[Mois] <= 6
+    )
 )
-"""
+ORDER BY DIM_DATE[Mois]"""
     },
 
     {
-        "question": "TOP 3 produits par MB de la sous BU Digital Solutions en 2024",
-        "query": """
-"	VAR top3Tavle =
-	TOPN(
-		3,
-		SUMMARIZE(
-			MAPPING_PRODUIT,
-			MAPPING_PRODUIT[Produit],
-			""Marge Brute"", CALCULATE(
-				[MB],
-				GL[Sous BU] = ""Digital Solutions"",
-				DIM_DATE[Année] = 2024
-			)
-		),
-		[Marge Brute],
-		DESC
-	)
-	VAR TOP3TRIEE = ADDCOLUMNS(
-		top3Tavle,
-		""Rank Marge Brute"", RANKX(
-			top3Tavle,
-			[Marge Brute],
-			,
-			DESC,
-			Dense
-		)
-	)
-	VAR tableFinalTriee = FILTER(
-		TOP3TRIEE,
-		[Rank Marge Brute] <= 3
-	)
-
-	RETURN
-		tableFinalTriee"
-"""
+        "question": "Marge brute de la sous BU Manufacture pour le mois de septembre 2024",
+        "query": """EVALUATE
+ROW(
+    "Gross Margin", 
+    CALCULATE(
+        [MB],
+        GL[Sous BU] = "Manufacture",
+        DIM_DATE[Année] = 2024,
+        DIM_DATE[Mois] = 9
+    )
+)"""
     },
 
     {
         "question": "What is the total revenue by product for Acme Corp in 2023?",
-        "query": """
-EVALUATE
+        "query": """EVALUATE
 SUMMARIZECOLUMNS(
     MAPPING_PRODUIT[Produit],
     FILTER(
@@ -86,14 +81,30 @@ SUMMARIZECOLUMNS(
         )
     )
 )
-ORDER BY [Total Revenue] DESC
-"""
+ORDER BY [Total Revenue] DESC"""
+    },
+
+    {
+        "question": "give me the best selling three products in termes of revenu, in the year 2024",
+        "query": """EVALUATE
+TOPN(
+    3,
+    SUMMARIZECOLUMNS(
+        MAPPING_PRODUIT[Produit],
+        "Total Revenue", 
+        CALCULATE(
+            SUM(GL[MONTANT]),
+            GL[EXERCICE] = 2024
+        )
+    ),
+    [Total Revenue],
+    DESC
+)"""
     },
 
     {
         "question": "Show me monthly expenses by cost center for project PRJ2023-001",
-        "query": """
-EVALUATE
+        "query": """EVALUATE
 SUMMARIZECOLUMNS(
     DIM_DATE[MOIS],
     MAPPING_CDR[CDR_NAME],
@@ -110,14 +121,12 @@ SUMMARIZECOLUMNS(
         )
     )
 )
-ORDER BY DIM_DATE[MOIS], [Total Expenses] DESC
-"""
+ORDER BY DIM_DATE[MOIS], [Total Expenses] DESC"""
     },
 
     {
         "question": "Compare revenue across product categories and business units, with year-over-year growth",
-        "query": """
-EVALUATE
+        "query": """EVALUATE
 SUMMARIZECOLUMNS(
     MAPPING_PRODUIT[Niv1_CRM], // Product category
     DIM_SOCIETE[BU], // Business unit
@@ -146,15 +155,6 @@ SUMMARIZECOLUMNS(
     )
     RETURN DIVIDE(Rev2023 - Rev2022, Rev2022, 0)
 )
-ORDER BY [YoY Growth] DESC
-"""
+ORDER BY [YoY Growth] DESC"""
     }
 ]
-
-
-
-
-
-
-
-

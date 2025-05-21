@@ -5,14 +5,18 @@ Few-shot examples for the PowerBI LLM to help it understand how to formulate com
 from Prompts.query_examples import DAX_EXAMPLES
 
 def get_few_shot_examples():
-    """Format DAX and SQL examples for inclusion in the agent's prompt."""
+    """Format DAX examples for the LLM."""
 
-    examples_text = "Example DAX queries:\n"
+    examples_text = "\n\nEXAMPLE QUERIES FOR REFERENCE:\n"
+    examples_text += "Below are examples of DAX queries for different types of business questions.\n"
+    examples_text += "Use these as reference patterns when constructing new queries or adapting existing ones.\n\n"
+    examples_text += "IMPORTANT: When writing DAX queries, never include language identifiers or extra backticks.\n\n"
 
-    for example in DAX_EXAMPLES :  # Using just 2 examples to keep prompt size reasonable  DAX_EXAMPLES[:2]
-        examples_text += f"\nQuestion: {example['question']}\n"
-        # Replace curly braces with double curly braces to escape them
-        escaped_query = example['query'].replace("{", "{{").replace("}", "}}")
-        examples_text += f"Query:\n{escaped_query.strip()}\n"
+    for i, example in enumerate(DAX_EXAMPLES):
+        # Create a formatted block for each example
+        examples_text += f"--- Example {i+1} ---\n"
+        examples_text += f"Question: \"{example['question']}\"\n"
+        examples_text += "DAX Query:\n"  # Removed the triple backticks to avoid confusion
+        examples_text += example['query'] + "\n\n"
 
     return examples_text

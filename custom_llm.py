@@ -6,7 +6,7 @@ import json
 import urllib.request
 from langchain.llms.base import LLM
 
-GPT_API_KEY = "2b24fef721d14c94a333ab2e4f686f40"
+GPT_API_KEY = "xxxxxxxxxxx"
 
 class CustomGPT(LLM):
     def _call(self, prompt: str, model="gpt-4o", version="2024-02-01", **kwargs):

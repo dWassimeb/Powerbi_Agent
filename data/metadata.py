@@ -20,7 +20,7 @@ DATASET_METADATA = {
         "columns": {
             "DATE_ID": "Unique identifier for each date (primary key)",
             "DATE": "Calendar date in format YYYY-MM-DD",
-            "ANNEE": "Year number",
+            "Année": "Year number",
             "MOIS": "Month number (1-12)",
             "TRIMESTRE": "Quarter number (1-4)",
             "SEMESTRE": "Semester number (1-2)",
